@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qcby.dao.StudentDao">
+    <!--  连表查询  -->
+    <select id="selectStudentTeacher" resultMap="StudentTeacher">
+        SELECT student.*,teacher.Tname from
+        student left join teacher on teacher.id = student.t_id
+    </select>
+    <!-- resultMap:返回映射，要保证数据库字段和实体类字段的一致  -->
+    <resultMap id="StudentTeacher" type="com.qcby.entity.Student1">
+        <!--property：实体类当中的字段； column：数据库当中的字段  -->
+        <result property="id" column="id"/>
+        <result property="sName" column="Sname"/>
+        <result property="sex" column="sex"/>
+        <result property="age" column="age"/>
+        <result property="t_id" column="t_id"/>
+        <!--     association：复杂的属性要特殊处理 ；javaType：复杂属性的类型  -->
+        <association property="teacher" javaType="com.qcby.entity.Teacher1">
+            <result property="id" column="id"/>
+            <result property="tName" column="Tname"/>
+        </association>
+    </resultMap>
+    
+    <!-- 分步查询 -->
+    <!-- select * from student：首先查询一个表的全部信息-->
+    <!-- select * from teacher where id = #{t_id} ：然后根据两个表的关联字段查询另一个表的信息 -->
+    <select id="StudentTeacher2" resultMap="StudentTeacher2">
+        select * from student
+    </select>
+    <resultMap id="StudentTeacher2" type="com.qcby.entity.Student1">
+        <result property="id" column="id"/>
+        <result property="sName" column="Sname"/>
+        <result property="sex" column="sex"/>
+        <result property="age" column="age"/>
+        <result property="t_id" column="t_id"/>
+        <!--     column="t_id"  ：两个表的关联字段   -->
+        <!--     select="teacher1" ： 调用teacher1方法-->
+        <association property="teacher"
+                     javaType="com.qcby.entity.Teacher1"
+                     column="t_id"
+                     select="com.qcby.dao.TeacherDao.teacher1"/>
+    </resultMap>
+
+
+    <select id="getStudent" resultType="com.qcby.entity.Student2" parameterType="java.lang.Integer">
+        select * from student where t_id = #{id}
+    </select>
+
+
+
+
+
+</mapper>

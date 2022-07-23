@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qcby.dao.TeacherDao">
+    <!-- 连表查询   -->
+    <select id="getTeacherStudent" resultMap="teacherStudent">
+        SELECT student.*,teacher.Tname from
+        student left join teacher on teacher.id = student.t_id
+    </select>
+    <resultMap id="teacherStudent" type="com.qcby.entity.Teacher2">
+        <result property="id" column="id"/>
+        <result property="tName" column="Tname"/>
+    <!--  复杂的属性我们需要单独去处理 collection:处理集合 ；association:处理对象-->
+    <!--  ofType：在集合中的泛型类型      -->
+        <collection property="student2s" ofType="com.qcby.entity.Student2">
+            <result property="id" column="id"/>
+            <result property="sName" column="Sname"/>
+            <result property="sex" column="sex"/>
+            <result property="age" column="age"/>
+            <result property="t_id" column="t_id"/>
+        </collection>
+    </resultMap>
+    <!--分步查询 -->
+    <!--select * from teacher  -->
+    <!--select * from student where t_id = #{id}   -->
+    <select id="getTeacherStudent2" resultMap="teacherStudent2">
+        select * from teacher
+    </select>
+    <resultMap id="teacherStudent2" type="com.qcby.entity.Teacher2">
+        <result property="id" column="id"/>
+        <result property="tName" column="Tname"/>
+        <!--     fetchType="eager" :对学生的延迟加载不生效 ;不写就是默认：fetchType="lazy" -->
+        <collection property="student2s" ofType="com.qcby.entity.Student2"
+                    column="id" select="com.qcby.dao.StudentDao.getStudent"
+                    fetchType="eager"
+        />
+    </resultMap>
+
+    <select id="teacher1" resultType="com.qcby.entity.Teacher1" parameterType="java.lang.Integer">
+        select * from teacher where id = #{t_id}
+    </select>
+</mapper>
